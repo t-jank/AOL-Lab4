@@ -55,8 +55,8 @@ def distance_hypercube(x,y):
     if len(x)!=6 or len(y)!=6:
         return 'wrong size of binary number (not 6)'
     d=0
-    for i in range(0,6):
-        if x[i]!=y[i]:
+    for k in range(0,6):
+        if x[k]!=y[k]:
             d+=1
     return d
 
@@ -66,15 +66,25 @@ def find_optimum(phase):
     for pos in range(0,64):
         position=int_to_bin(pos)
         cost=0
-        for i in range(0,len(phase)):
-            cost+=distance_hypercube(position,phase[i])
+        for j in range(0,len(phase)):
+            cost+=distance_hypercube(position,phase[j])
         if cost < cost_best:
             cost_best = cost
             position_best = position
     return position_best
 
 def move_to_min_hypercube(page_place,asks,D):
-    return 15
+    cost=0
+    phase=[]
+    for i in range(0,len(asks)):
+        cost+=distance_hypercube(page_place,asks[i])
+        phase.append(asks[i])
+        if len(phase)==D:
+            new_position=find_optimum(phase)
+            phase=[]
+            cost+=D*distance_hypercube(page_place,new_position)
+            page_place=new_position
+    return cost
 
 def flip_hypercube(page_place,asks,D):
     cost=0
@@ -103,4 +113,5 @@ for i in range(0,1024):
     asks.append(int_to_bin(random_number(distribution,64)-1))
 
 print(flip_hypercube(page_place,asks,D))
+print(move_to_min_hypercube(page_place,asks,D))
 
