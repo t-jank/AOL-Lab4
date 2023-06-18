@@ -60,7 +60,7 @@ def distance_hypercube(x,y):
             d+=1
     return d
 
-def find_optimum(phase):
+def find_optimum_h(phase):
     position_best=int_to_bin(0)
     cost_best=127023892
     for pos in range(0,64):
@@ -80,7 +80,7 @@ def move_to_min_hypercube(page_place,asks,D):
         cost+=distance_hypercube(page_place,asks[i])
         phase.append(asks[i])
         if len(phase)==D:
-            new_position=find_optimum(phase)
+            new_position=find_optimum_h(phase)
             phase=[]
             cost+=D*distance_hypercube(page_place,new_position)
             page_place=new_position
@@ -112,6 +112,75 @@ asks=[]
 for i in range(0,1024):
     asks.append(int_to_bin(random_number(distribution,64)-1))
 
-print(flip_hypercube(page_place,asks,D))
-print(move_to_min_hypercube(page_place,asks,D))
+
+
+######## TORUS 3D ########
+
+def bin2_to_quat(x):
+    if x=='00':
+        q='0'
+    elif x=='01':
+        q='1'
+    elif x=='10':
+        q='2'
+    elif x=='11':
+        q='3'
+    return q
+
+def int_to_quat(x): # only for 0 to 63
+    q=''
+    x=int_to_bin(x)
+    q+=bin2_to_quat(x[:2])
+    q+=bin2_to_quat(x[2:4])
+    q+=bin2_to_quat(x[4:6])
+    return q
+
+def distance_torus(x,y):
+    if len(x)!=3 or len(y)!=3:
+        return 'wrong size of quaternary number (not 3)'
+    d=0
+    for k in range(0,3):
+        tmp=abs(int(x[k])-int(y[k]))
+        if tmp==3:
+            tmp=1
+        d+=tmp
+    return d
+
+def flip_torus(page_place,asks,D):
+    cost=0
+    p=1/(2*D)
+    for i in range(0,len(asks)):
+        cost+=distance_torus(page_place,asks[i])
+        if random.random() < p:
+            cost += D*distance_torus(page_place,asks[i])
+            page_place = asks[i]
+    return cost
+
+
+def find_optimum_t(phase):
+    position_best=int_to_quat(0)
+    cost_best=127023892
+    for pos in range(0,64):
+        position=int_to_quat(pos)
+        cost=0
+        for j in range(0,len(phase)):
+            cost+=distance_torus(position,phase[j])
+        if cost < cost_best:
+            cost_best = cost
+            position_best = position
+    return position_best
+
+def move_to_min_torus(page_place,asks,D):
+    cost=0
+    phase=[]
+    for i in range(0,len(asks)):
+        cost+=distance_torus(page_place,asks[i])
+        phase.append(asks[i])
+        if len(phase)==D:
+            new_position=find_optimum_t(phase)
+            phase=[]
+            cost+=D*distance_torus(page_place,new_position)
+            page_place=new_position
+    return cost
+
 
