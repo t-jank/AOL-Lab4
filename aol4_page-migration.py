@@ -142,28 +142,32 @@ def move_to_min(page_place,asks,D,structure):
 
 structure='h' # 'hypercube' or 'torus'
 distribution='j'
+nrep=10
 
 if structure=='t':
     structure='torus'
 elif structure=='h':
     structure='hypercube'
 D=32
-nodes=[]
-asks=[]
-if structure=='hypercube':
-    for i in range(0,64):
-        nodes.append(int_to_bin(i))
-    page_place=int_to_bin(random_number('j',64)-1)
-    for i in range(0,1024):
-        asks.append(int_to_bin(random_number(distribution,64)-1))
-elif structure=='torus':
-    for i in range(0,64):
-        nodes.append(int_to_quat(i))
-    page_place=int_to_quat(random_number('j',64)-1)
-    for i in range(0,1024):
-        asks.append(int_to_quat(random_number(distribution,64)-1))
+cost_flip=0
+cost_mtm=0
+for r in range(0,nrep):
+    nodes=[]
+    asks=[]
+    if structure=='hypercube':
+        for i in range(0,64):
+            nodes.append(int_to_bin(i))
+        page_place=int_to_bin(random_number('j',64)-1)
+        for i in range(0,1024):
+            asks.append(int_to_bin(random_number(distribution,64)-1))
+    elif structure=='torus':
+        for i in range(0,64):
+            nodes.append(int_to_quat(i))
+        page_place=int_to_quat(random_number('j',64)-1)
+        for i in range(0,1024):
+            asks.append(int_to_quat(random_number(distribution,64)-1))
+    cost_flip+=flip(page_place, asks, D, structure)
+    cost_mtm+=move_to_min(page_place, asks, D, structure)
 
-
-print(flip(page_place, asks, D, structure))
-print(move_to_min(page_place, asks, D, structure))
-
+print(cost_flip/nrep)
+print(cost_mtm/nrep)
